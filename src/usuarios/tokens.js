@@ -42,6 +42,10 @@ function verificaTokenEnviado(token, nome) {
 }
 
 async function verificaTokenJWT(token, nome, blocklist){
+    if(!blocklist) {
+        return;
+    }
+
     await verificaTokenNaBlocklist(token, nome, blocklist);
     const {id} = jwt.verify(token, process.env.CHAVE_JWT);
     return id;
@@ -90,6 +94,17 @@ module.exports = {
         },
         invalida(token){
             return invalidaTokenOpaco(token, this.lista)
+        }
+    },
+
+    verificacaoEmail: {
+        nome: 'Token de verificacao de e-mail',
+        expiracao: [1, 'h'],
+        cria(id){
+            return criaTokenJWT(id, this.expiracao);
+        },
+        verifica(token){
+            return verificaTokenJWT(token, this.nome);
         }
     }
 }
